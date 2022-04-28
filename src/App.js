@@ -1,25 +1,80 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import './index.css'
 
-function App() {
+
+const App = () => {
+
+  const [quotes, setQuotes] = useState([]);
+  const [variable, setVariable] = useState([]);
+
+  useEffect(() => {
+    fetch("https://api.jsonbin.io/b/5e9ef7272940c704e1dc1099")
+      .then((result) => {
+        console.log(result)
+        return result.json();
+      })
+      .then((data) => {
+        console.log(data.quotes)
+        setQuotes(data.quotes)
+      });
+
+  }, []);
+
+
+
+  const QuotePrint = (props) => {
+    return (
+      <>
+        <h3>{props.quote}</h3>
+        <p>{props.author}</p>
+      </>
+    )
+  }
+
+  const HandleChange = (props) => {
+    console.log("Napataan muutokset Formista: " + props.target.value);
+    setVariable(props.target.value);
+
+  }
+
+  useEffect(() => {
+    let quotesCopy = [...quotes]
+    quotesCopy = quotesCopy.filter(data => data.quote.includes(variable))
+    setQuotes(quotesCopy)
+
+  }, [variable]);
+
+
+  const getData = () => {
+    fetch("https://api.jsonbin.io/b/5e9ef7272940c704e1dc1099")
+      .then((result) => {
+        console.log(result)
+        return result.json();
+      })
+      .then((data) => {
+
+        setQuotes(data.quotes)
+      });
+  }
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <>
+      <div>
+        <h1>Quote List</h1>
+        <form>
+
+          <input value={variable} type="text" onChange={HandleChange} /><br></br>
+
+        </form>
+
+        {
+          quotes ?
+            quotes.map((data, index) => <QuotePrint author={data.author} quote={data.quote} />)
+            : <div>Nothing here.Fething data...</div>
+        }
+        <button onClick={getData}>Hae</button>
+      </div>
+    </>
+  )
 }
 
 export default App;
